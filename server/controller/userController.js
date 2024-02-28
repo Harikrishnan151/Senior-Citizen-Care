@@ -42,11 +42,65 @@ exports.loginUser=async(req,res)=>{
             const token=jwt.sign({
                 userid:existingUser._id
             },"superkey2024")
-            res.status(200).json({existingUser,token})
+            res.cookie('access_token',token,{httpOnly :true}).status(200).json({existingUser,token})
         }else{
             res.status(404).json({message:'incorrect email or password'})
         }
     }catch(err){
         res.status(401).json({message:'Account does not exist'}) 
     }
+}
+
+//Logic for google sign-in (backend logic created but not tested . test after frontend integrated)
+exports.googleLogin=async(req,res,next)=>{
+    try{
+        const user=await users.findOne({email: req.body.email})
+        if(user){
+            const token=jwt.sign({userid:user._id},"superkey2024")
+            res.cookie('access_token',token,{httpOnly :true}).status(200).json({user,token})
+        }else{
+            const generatedPassword=Math.random().toString(36).slice(-8)+ Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+            const newUser= new users({
+                username:req.body.name.split(' ').join('').toLowerCase() +Math.random().toString(36).slice(-4), 
+                email:req.body.email,
+                 password:hashedPassword})// photo not added
+                 await newUser.save();
+                 const token=jwt.sign({userid:user._id},"superkey2024")
+                 res.cookie('access_token',token,{httpOnly :true}).status(200).json({user,token})
+
+        }
+
+    }catch(error){
+        next(error)
+    }
+}
+
+//Logic to signout user
+exports.singnOut=async(req,res)=>{
+    try {
+        res.clearCookie('access_token');
+        res.status(200).json('User has been logged out!');
+      } catch (error) {
+        next(error);
+      }
+}
+
+//Logic for delete user
+exports.deleteUser=async(req,res)=>{
+    const userId = req.params.id;
+    try {
+        // Find the user by ID
+        const user = await users.findById(userId);
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        await users.findByIdAndDelete(userId);
+        res.status(200).json({ message: 'User deleted successfully' });
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+   
+    
 }
