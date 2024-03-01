@@ -1,6 +1,5 @@
 
 //1) import users model
-
 const users=require('../model/userSchema')
 
 //import bcryptjs for hide the password
@@ -13,7 +12,7 @@ const jwt=require('jsonwebtoken')
 // Logic for user registeration
 exports.registerUser=async(req,res)=>{
     console.log('Inside api call for user registeration');
-    const {username,email,password,number} =req.body
+    const {username,email,password,number,address} =req.body
     const hashedPassword=bcryptjs.hashSync(password, 10)
     try{
         const existingUser=await users.findOne({email:email});
@@ -21,7 +20,7 @@ exports.registerUser=async(req,res)=>{
             res.status(406).json({message:'Account already exist'})
         }else{
             const newUser=new users({
-                username,email,password:hashedPassword,number
+                username,email,password:hashedPassword,number,address
             });
             await newUser.save()
             res.status(200).json({newUser,message:'Account Registered'})
@@ -100,7 +99,35 @@ exports.deleteUser=async(req,res)=>{
       } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ message: 'Internal server error' });
-      }
-   
+      } 
+}
+
+//Logic to edit user details
+exports.editUser=async(req,res)=>{
+    console.log('Inside api call for edit user details');
+    
+    try{
+        if (req.body.password) {
+            req.body.password = bcryptjs.hashSync(req.body.password, 10);
+          }
+
+          const updatedUser = await users.findByIdAndUpdate(
+            req.params.id,
+            
+            {
+              $set: {
+                username: req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                number: req.body.number,
+                address: req.body.address
+              },
+            },
+            { new: true }
+          );
+          res.status(200).json({updatedUser,message:'user details updated'});
+    }catch(error){
+        res.status(500).json({ message: 'Internal server error' });
+    }
     
 }

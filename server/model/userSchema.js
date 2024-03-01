@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     number: {
         type: Number,
         required: true,
+    },
+    address: {
+        type: String,
+        required: true,
     }
 })
 
