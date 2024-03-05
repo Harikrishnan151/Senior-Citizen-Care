@@ -5,6 +5,7 @@ const express=require('express')
 const userController=require('../controller/userController')
 const adminController=require('../controller/adminController')
 const serviveproviderController=require('../controller/serviceproviderController')
+const approvedServiceProvider=require('../controller/approvedServiceController')
 
 //import certificate multer file
 const upload=require('../multer/storageConfig')
@@ -47,6 +48,14 @@ router.post('/serviceProvier/register',uploadPDF.single('experience_crt'),serviv
 //serviceProvider secondary registration API call
 router.post('/serviceProvider/fianlRegtration',uploadImg.single('profile_img'),serviveproviderController.finalReg)
 
+//Get all service providers list inside the admin dashboard to approve 
+router.get('/allServiceProviders/list',adminController.getAllserviceproviders)
+
+//Api to approve service provider request
+router.post('/approve/serviceProvider',approvedServiceProvider.approveServiceProvider)
+
+//Service Provider login
+router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogin)
 
 //4) export routes
 module.exports=router

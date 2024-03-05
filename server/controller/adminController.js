@@ -1,5 +1,6 @@
 //1) import admin model
 const admins=require('../model/adminSchema')
+const serviceProvider=require('../model/serviceproviderSchema')
 
 // Logic for User-login
 exports.adminLogin=async(req,res)=>{
@@ -15,4 +16,17 @@ exports.adminLogin=async(req,res)=>{
     } catch (error) {
         res.status(401).json({message:'Account does not exist'})
     }
+}
+
+// Logic to get all serverviceProviders request to approve
+exports.getAllserviceproviders=async(req,res)=>{
+    console.log('inside API call to get all service providers');
+    try{
+        const allServiceproviders=await serviceProvider.find()
+        res.status(200).json({allServiceproviders,message:'list of all service providers'})
+    
+    }catch(error){
+        res.status(500).json({message:'internal server error'})
+    }
+
 }
