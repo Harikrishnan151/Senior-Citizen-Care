@@ -5,6 +5,9 @@ const serverviceProviders=require('../model/serviceproviderSchema')
 //import jwt-token to authenticate user
 const jwt=require('jsonwebtoken') 
 
+// nodemailer import
+const nodemailer = require('nodemailer');
+
 
 //Logic to approve serviceProvider
 exports.approveServiceProvider=async(req,res)=>{
@@ -24,6 +27,7 @@ exports.approveServiceProvider=async(req,res)=>{
             if(response){
                 const result=await serverviceProviders.deleteOne({email})
                 res.status(200).json({newServiceProvider,message:"Service Provider approved"})
+                await sendConfirmationEmail(email);
             }else{
                 res.status(404).json({message:'Approval Faild'})
             }
@@ -53,4 +57,30 @@ exports.serviceProviderLogin=async(req,res)=>{
       }catch(error){
         res.status(500).json({message:'Request not approved by the Admin'})
       }
+}
+
+// mail send usimg  smtp(simple mail transfer protocol)
+async function sendConfirmationEmail(serviceProviderEmail) {
+    // Create a Nodemailer transporter using SMTP
+    const transporter = nodemailer.createTransport({
+        service:'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+            user: process.env.gmail, // Admin's email
+            pass: process.env.gmailpsw // Admin's password
+        }
+    });
+    
+
+    // Send mail with defined transport object
+    const  info = await transporter.sendMail({
+        from: 'projectmern123@gmail.com', // Admin's email address
+        to: [serviceProviderEmail], // Service provider's email address
+        subject: 'Service Provider Approval Confirmation',
+        text: 'Your request as a service provider has been approved. You can now login to the platform and start offering your services.'
+    });
+
+    console.log('Confirmation email sent: ', info.messageId);
 }

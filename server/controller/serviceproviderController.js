@@ -15,7 +15,7 @@ exports.serviceProviderRegisteration=async(req,res)=>{
             res.status(406).json({message:'Account already exist'}) 
         }else{
             const newUser=new serviceProvider({
-                username,email,password,mobile,profile_img:img,service,specialization,experience_crt:exp_crt,qualification,exp_year,rate
+                username,email,password,mobile,profile_img:'',service,specialization,experience_crt:exp_crt,qualification,exp_year,rate
             });
             await newUser.save();
             res.status(200).json({newUser,message:'primary registeration completed'})

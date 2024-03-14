@@ -36,15 +36,16 @@ exports.loginUser=async(req,res)=>{
     console.log('Inside API call to login user');
     const{email,password}=req.body
     try{
-        const existingUser=await users.findOne({email,password})
-        if(existingUser!==null && existingUser!== undefined){
-            const token=jwt.sign({
-                userid:existingUser._id
+        const existingUser=await users.findOne({email})
+        if(!existingUser)
+          return res.status(404).json({message:'User not found'})
+        const validPassword=bcryptjs.compareSync(password,existingUser.password)
+        if(!validPassword)
+         return res.status(401).json({message:'Incorrect password'})
+         const token=jwt.sign({
+              userid:existingUser._id
             },"superkey2024")
             res.cookie('access_token',token,{httpOnly :true}).status(200).json({existingUser,token})
-        }else{
-            res.status(404).json({message:'incorrect email or password'})
-        }
     }catch(err){
         res.status(401).json({message:'Account does not exist'}) 
     }
