@@ -1,6 +1,9 @@
 //1) import admin model
 const approvedServiceProvider=require('../model/approvedServiceprovider')
 const serverviceProviders=require('../model/serviceproviderSchema')
+const serviceProviderAttendence=require('../model/attendenceServiceProvider')
+
+
 
 //import jwt-token to authenticate user
 const jwt=require('jsonwebtoken') 
@@ -84,3 +87,39 @@ async function sendConfirmationEmail(serviceProviderEmail) {
 
     console.log('Confirmation email sent: ', info.messageId);
 }
+
+//Logic to mark service provider attendence
+exports.serviceProviderAttendance = async (req, res) => {
+    console.log('Inside API call to mark attendance');
+    const { date, time_in, time_out, working_hours, serviceProvidersId, present } = req.body;
+
+    try {
+        console.log(date, time_in, time_out, working_hours, serviceProvidersId, present);
+        if (!date || !time_in || !time_out || !working_hours || !serviceProvidersId || !present) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Check if the service provider exists
+        const user = await approvedServiceProvider.findOne({ _id: serviceProvidersId });
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        // Check if attendance for the service provider on the given date is already marked
+        const check = await serviceProviderAttendence.findOne({ serviceProvidersId, date, present: true });
+        if (check) {
+            return res.status(400).json({ message: 'Attendance already marked' });
+        }
+
+        // Create new attendance record
+        const newAttendance = new serviceProviderAttendence({
+            date, time_in, time_out, working_hours, serviceProvidersId, present
+        });
+        await newAttendance.save();
+
+        res.status(200).json({ message: 'Attendance marked successfully', newAttendance });
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        res.status(500).json({ error, message: 'Internal server error' });
+    }
+};
