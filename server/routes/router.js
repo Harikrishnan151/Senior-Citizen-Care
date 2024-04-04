@@ -41,6 +41,9 @@ router.post('/editUser/:id',userController.editUser)
 //Reset user password
 router.post('/resetUserPassword/:id',userController.ResetUserPassword)
 
+//get all users api call
+router.get('/users/list',userController.allUsers)
+
 //Admin Login API call
 router.post('/adminLogin',adminController.adminLogin)
 
@@ -55,6 +58,9 @@ router.get('/allServiceProviders/list',adminController.getAllserviceproviders)
 
 //Api to approve service provider request
 router.post('/approve/serviceProvider',approvedServiceProvider.approveServiceProvider)
+
+//Api to get all approved service providers
+router.get('/approvedServiceProviders/list',approvedServiceProvider.allServiceProviders)
 
 //Service Provider login
 router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogin)

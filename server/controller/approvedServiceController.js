@@ -88,38 +88,157 @@ async function sendConfirmationEmail(serviceProviderEmail) {
     console.log('Confirmation email sent: ', info.messageId);
 }
 
+//Logic to get all approved service providers
+exports.allServiceProviders=async(req,res)=>{
+    console.log('inside api call to get all approved service providers');
+    try{
+        const allApprovedServiceproviders=await approvedServiceProvider.find()
+        res.status(200).json({allApprovedServiceproviders,message:'list of all service providers'})
+    
+    }catch(error){
+        res.status(500).json({message:'internal server error'})
+    }
+
+}
+
 //Logic to mark service provider attendence
 exports.serviceProviderAttendance = async (req, res) => {
     console.log('Inside API call to mark attendance');
-    const { date, time_in, time_out, working_hours, serviceProvidersId, present } = req.body;
+    const { date, time_in, time_out, working_hours, present } = req.body;
 
     try {
-        console.log(date, time_in, time_out, working_hours, serviceProvidersId, present);
-        if (!date || !time_in || !time_out || !working_hours || !serviceProvidersId || !present) {
+        console.log(date, time_in, time_out, working_hours, present);
+        if (!date || !time_in || !time_out || !working_hours || !present) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
+        const token=req.headers.authorization
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
+        jwt.verify(token,'superkey2024',async (err,decoded)=>{
+            if(err){
+                return res.status(403).json({message:'Forbidden invalid token'})
+            }
+            req.userId=decoded.serviceProviderid
+            const userId=req.userId;
+            console.log(userId);
         // Check if the service provider exists
-        const user = await approvedServiceProvider.findOne({ _id: serviceProvidersId });
+        const user = await approvedServiceProvider.findOne({ _id:userId });
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }
 
         // Check if attendance for the service provider on the given date is already marked
-        const check = await serviceProviderAttendence.findOne({ serviceProvidersId, date, present: true });
+        const check = await serviceProviderAttendence.findOne({ serviceProvidersId:userId,time_in, time_out,working_hours,present: true });
         if (check) {
             return res.status(400).json({ message: 'Attendance already marked' });
         }
 
         // Create new attendance record
         const newAttendance = new serviceProviderAttendence({
-            date, time_in, time_out, working_hours, serviceProvidersId, present
+            date, time_in, time_out, working_hours, serviceProvidersId:userId, present
         });
         await newAttendance.save();
 
         res.status(200).json({ message: 'Attendance marked successfully', newAttendance });
+        })
+      
     } catch (error) {
         console.error('Error marking attendance:', error);
         res.status(500).json({ error, message: 'Internal server error' });
     }
 };
+
+// exports.serviceProviderAttendance = async (req, res) => {
+//     console.log('Inside API call to mark attendance');
+//     const { date, time_in, time_out, working_hours, present } = req.body;
+
+//     try {
+//         console.log(date, time_in, time_out, working_hours, present);
+//         if (!date || !time_in || !time_out || !working_hours || !present) {
+//             return res.status(400).json({ message: 'Missing required fields' });
+//         }
+
+//         const token = req.headers.authorization;
+//         if (!token) {
+//             return res.status(401).json({ message: "Unauthorized: No token provided" });
+//         }
+//         jwt.verify(token, 'superkey2024', async (err, decoded) => {
+//             if (err) {
+//                 return res.status(403).json({ message: 'Forbidden invalid token' });
+//             }
+//             const userId = decoded.serviceProvidersId; // Corrected the user ID extraction
+//             // Check if the service provider exists
+//             const user = await approvedServiceProvider.findOne({ _id: userId });
+//             if (!user) {
+//                 return res.status(401).json({ message: 'User not found' });
+//             }
+
+//             // Check if attendance for the service provider on the given date is already marked
+//             const check = await serviceProviderAttendance.findOne({ serviceProvidersId: userId, date });
+//             if (check) {
+//                 return res.status(400).json({ message: 'Attendance already marked' });
+//             }
+
+//             // Create new attendance record
+//             const newAttendance = new serviceProviderAttendance({
+//                 date, time_in, time_out, working_hours, serviceProvidersId: userId, present
+//             });
+//             await newAttendance.save();
+
+//             res.status(200).json({ message: 'Attendance marked successfully', newAttendance });
+//         })
+
+//     } catch (error) {
+//         console.error('Error marking attendance:', error);
+//         res.status(500).json({ error, message: 'Internal server error' });
+//     }
+// };
+// exports.serviceProviderAttendance = async (req, res) => {
+//     console.log('Inside API call to mark attendance');
+//     const { date, time_in, time_out, working_hours, present } = req.body;
+
+//     try {
+//         console.log(date, time_in, time_out, working_hours, present);
+//         if (!date || !time_in || !time_out || !working_hours || !present) {
+//             return res.status(400).json({ message: 'Missing required fields' });
+//         }
+
+//         const token = req.headers.authorization;
+//         if (!token) {
+//             return res.status(401).json({ message: "Unauthorized: No token provided" });
+//         }
+//         jwt.verify(token, 'superkey2024', async (err, decoded) => {
+//             if (err) {
+//                 console.error('Error verifying token:', err);
+//                 return res.status(403).json({ message: 'Forbidden invalid token' });
+//             }
+//             const userId = decoded.serviceProvidersId; // Corrected the user ID extraction
+//             console.log('User ID:', userId);
+//             // Check if the service provider exists
+//             const user = await approvedServiceProvider.findOne({ _id: userId });
+//             if (!user) {
+//                 return res.status(401).json({ message: 'User not found' });
+//             }
+
+//             // Check if attendance for the service provider on the given date is already marked
+//             const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId, date });
+//             if (check) {
+//                 return res.status(400).json({ message: 'Attendance already marked' });
+//             }
+
+//             // Create new attendance record
+//             const newAttendance = new serviceProviderAttendence({
+//                 date, time_in, time_out, working_hours, serviceProvidersId: userId, present
+//             });
+//             await newAttendance.save();
+
+//             res.status(200).json({ message: 'Attendance marked successfully', newAttendance });
+//         })
+
+//     } catch (error) {
+//         console.error('Error marking attendance:', error);
+//         res.status(500).json({ error, message: 'Internal server error' });
+//     }
+// };

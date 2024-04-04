@@ -133,6 +133,17 @@ exports.editUser=async(req,res)=>{
     
 }
 
+//Logic to get all users list
+exports.allUsers=async(req,res)=>{
+  console.log('inside api call to get all users');
+  try {
+    const allUsersList=await users.find()
+    res.status(200).json({allUsersList,message:'All users list'})
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 //Logic to reset user password
 exports.ResetUserPassword=async(req,res)=>{
     console.log('inside API call for reset password');
