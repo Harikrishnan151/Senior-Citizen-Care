@@ -24,7 +24,7 @@ const pdffileFilter=(req,file,callback)=>{
     }
 }
 
-//define upload
+//define upload-*
 const uploadPDF = multer({storage:pdfstorage,fileFilter:pdffileFilter})
 
 module.exports= uploadPDF
