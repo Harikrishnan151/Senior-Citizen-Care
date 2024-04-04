@@ -59,6 +59,9 @@ router.get('/allServiceProviders/list',adminController.getAllserviceproviders)
 //Api to approve service provider request
 router.post('/approve/serviceProvider',approvedServiceProvider.approveServiceProvider)
 
+//Api to reject service provider request
+router.delete('/reject/serviceProvider/request',approvedServiceProvider.rejectServiceProviderReq)
+
 //Api to get all approved service providers
 router.get('/approvedServiceProviders/list',approvedServiceProvider.allServiceProviders)
 
