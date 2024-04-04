@@ -15,7 +15,6 @@ const uploadImg=require('../multer/storageConfigImg')
 const uploadPDF = require('../multer/storageConfig')
 
 
-
 //3) Using express create a object for router class in order to setpath
 const router=new express.Router()
 
@@ -39,6 +38,12 @@ router.delete('/deleteUser/:id', userController.deleteUser);
 //Edit user API call
 router.post('/editUser/:id',userController.editUser)
 
+//Reset user password
+router.post('/resetUserPassword/:id',userController.ResetUserPassword)
+
+//get all users api call
+router.get('/users/list',userController.allUsers)
+
 //Admin Login API call
 router.post('/adminLogin',adminController.adminLogin)
 
@@ -54,8 +59,14 @@ router.get('/allServiceProviders/list',adminController.getAllserviceproviders)
 //Api to approve service provider request
 router.post('/approve/serviceProvider',approvedServiceProvider.approveServiceProvider)
 
+//Api to get all approved service providers
+router.get('/approvedServiceProviders/list',approvedServiceProvider.allServiceProviders)
+
 //Service Provider login
 router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogin)
+
+//service provider attendence
+router.post('/serviceProvider/attendence',approvedServiceProvider.serviceProviderAttendance)
 
 //4) export routes
 module.exports=router

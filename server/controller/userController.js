@@ -108,9 +108,9 @@ exports.editUser=async(req,res)=>{
     console.log('Inside api call for edit user details');
     
     try{
-        if (req.body.password) {
-            req.body.password = bcryptjs.hashSync(req.body.password, 10);
-          }
+        // if (req.body.password) {
+        //     req.body.password = bcryptjs.hashSync(req.body.password, 10);
+        //   }
 
           const updatedUser = await users.findByIdAndUpdate(
             req.params.id,
@@ -119,7 +119,7 @@ exports.editUser=async(req,res)=>{
               $set: {
                 username: req.body.username,
                 email: req.body.email,
-                password: req.body.password,
+                // password: req.body.password,
                 number: req.body.number,
                 address: req.body.address
               },
@@ -131,4 +131,42 @@ exports.editUser=async(req,res)=>{
         res.status(500).json({ message: 'Internal server error' });
     }
     
+}
+
+//Logic to get all users list
+exports.allUsers=async(req,res)=>{
+  console.log('inside api call to get all users');
+  try {
+    const allUsersList=await users.find()
+    res.status(200).json({allUsersList,message:'All users list'})
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+//Logic to reset user password
+exports.ResetUserPassword=async(req,res)=>{
+    console.log('inside API call for reset password');
+    try {
+         if (req.body.password) {
+            req.body.password = bcryptjs.hashSync(req.body.password, 10);
+            const resetPass = await users.findByIdAndUpdate(
+                req.params.id,
+                
+                {
+                  $set: {
+
+                    password: req.body.password,
+                  },
+                },
+                { new: true }
+              );
+              res.status(200).json({resetPass,message:'Password updated successfully'});
+
+          }
+        
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+
+    }
 }
