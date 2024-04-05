@@ -52,6 +52,10 @@ const serviceproviderSchema=new mongoose.Schema({
         type: String,
     
     },
+    location:{
+        type:String,
+        required:true
+    }
 })
 
 //3) Create a model to store user

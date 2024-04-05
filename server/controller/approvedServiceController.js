@@ -16,23 +16,23 @@ const serviceProvider = require('../model/serviceproviderSchema');
 //Logic to approve serviceProvider
 exports.approveServiceProvider = async (req, res) => {
     console.log('inside Api call to approve service provider');
-    const { username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate } = req.body
+    const { username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate, location } = req.body
     try {
         const serviceProvider = await approvedServiceProvider.findOne({ email: email })
         if (serviceProvider) {
             res.status(401).json({ message: 'service provider already approved' })
         } else {
             const newServiceProvider = new approvedServiceProvider({
-                username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate
+                username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location
             })
             await newServiceProvider.save()
 
             const response = await serverviceProviders.findOne({ email: email })
             if (response) {
                 const result = await serverviceProviders.deleteOne({ email })
-                // textmessage = 'Your request as a service provider has been approved. You can now login to the platform and start offering your services.'
-                // subjectmail = 'Service Provider Approval Confirmation'
-                // await sendConfirmationEmail(email, subjectmail, textmessage);
+                textmessage = 'Your request as a service provider has been approved. You can now login to the platform and start offering your services.'
+                subjectmail = 'Service Provider Approval Confirmation'
+                await sendConfirmationEmail(email, subjectmail, textmessage);
                 res.status(200).json({ newServiceProvider, message: "Service Provider approved" })
             } else {
                 res.status(404).json({ message: 'Approval Faild' })
@@ -67,9 +67,9 @@ exports.rejectServiceProviderReq = async (req, res) => {
         if (!deleteReq) {
             return res.status(404).json({ message: 'Service provider not found' });
         }
-        // textmessage = 'Your request as a service provider has been rejected by the admin.'
-        // subjectmail = 'Rejection Mail...!!!'
-        // await sendConfirmationEmail(email, subjectmail, textmessage);
+        textmessage = 'Your request as a service provider has been rejected by the admin.'
+        subjectmail = 'Rejection Mail...!!!'
+        await sendConfirmationEmail(email, subjectmail, textmessage);
         res.status(200).json({ deleteReq, message: 'Service provider request deleted' });
     } catch (error) {
         console.error(error);

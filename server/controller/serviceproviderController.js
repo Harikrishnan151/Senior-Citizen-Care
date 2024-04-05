@@ -8,14 +8,14 @@ exports.serviceProviderRegisteration=async(req,res)=>{
     // const img=req.file.filename
     // console.log(exp_crt);
     // console.log(img);
-    const {username,email,password,mobile,service,specialization,qualification,exp_year,rate}=req.body
+    const {username,email,password,mobile,service,specialization,qualification,exp_year,rate,location}=req.body
     try{
         const existingUser=await serviceProvider.findOne({email:email});
         if(existingUser){
             res.status(400).json({message:'Account already exist'}) 
         }else{
             const newUser=new serviceProvider({
-                username,email,password,mobile,profile_img:'',service,specialization,experience_crt:exp_crt,qualification,exp_year,rate
+                username,email,password,mobile,profile_img:'',service,specialization,experience_crt:exp_crt,qualification,exp_year,rate,location
             });
             await newUser.save();
             res.status(200).json({newUser,message:'primary registeration completed'})
