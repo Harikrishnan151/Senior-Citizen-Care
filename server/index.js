@@ -26,8 +26,29 @@ server.listen(PORT,()=>{
 })
 
 //7) Use cors
- server.use(cors())
+//  server.use(cors())
+server.use(
+  cors({
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    credentials: true,
+  })
+);
  server.use(express.json())//express.json method is used to convert object data to array
+ server.options("*", cors());
+// server.use(cookieParser())
+server.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+  next();
+});
  server.use(router)
 
  //8) define routes
