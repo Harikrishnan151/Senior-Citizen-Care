@@ -16,14 +16,14 @@ const serviceProvider = require('../model/serviceproviderSchema');
 //Logic to approve serviceProvider
 exports.approveServiceProvider = async (req, res) => {
     console.log('inside Api call to approve service provider');
-    const { username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate } = req.body
+    const { username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate, location } = req.body
     try {
         const serviceProvider = await approvedServiceProvider.findOne({ email: email })
         if (serviceProvider) {
             res.status(401).json({ message: 'service provider already approved' })
         } else {
             const newServiceProvider = new approvedServiceProvider({
-                username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate
+                username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location
             })
             await newServiceProvider.save()
 
