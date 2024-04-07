@@ -71,6 +71,15 @@ router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogi
 //service provider attendence
 router.post('/serviceProvider/attendence',approvedServiceProvider.serviceProviderAttendance)
 
+//Api to add blog
+router.post('/blogs/add-blogs',uploadPDF.single('image'),adminController.addBlogs)
+
+//Api to get all blogs added
+router.get('/blogs/all-blogs',adminController.getAllBlogs)
+
+//Api to view blogs individually
+router.get('/blogs/view-blog/:id',adminController.viewBlog)
+
 //4) export routes
 module.exports=router
 
