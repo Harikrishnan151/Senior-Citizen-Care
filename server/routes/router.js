@@ -80,6 +80,21 @@ router.get('/blogs/all-blogs',adminController.getAllBlogs)
 //Api to view blogs individually
 router.get('/blogs/view-blog/:id',adminController.viewBlog)
 
+//Api call to delete blog
+router.delete('/blog/delete-blog',adminController.deleteBlog)
+
+//Api to add webinar
+router.post('/webinar/add-webinar',uploadPDF.single('image'),adminController.addWebinar)
+
+//Api to view webinar
+router.get('/webinar/all-webinar',adminController.getAllWebinar)
+
+//Api to view singe webinar
+router.get('/webinar/view-webinar/:id',adminController.viewWebinar)
+
+//Api call to delete webinar
+router.delete('/webinar/delete-webinar',adminController.deleteWebinar)
+
 //4) export routes
 module.exports=router
 
