@@ -71,6 +71,18 @@ router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogi
 //service provider attendence
 router.post('/serviceProvider/attendence',approvedServiceProvider.serviceProviderAttendance)
 
+//Api to send service provider leave request
+router.post('/serviceProvider/leave-request',approvedServiceProvider.leaveRequest)
+
+//Api to get all leave req
+router.get('/request/leave-request',adminController.getAllLeaveReq)
+
+//Api to reject leave request
+router.post('/leave-request/reject',adminController.rejectLeaveReq)
+
+//Api to Accept leave request
+router.post('/leave-request/accept',adminController.acceptLeaveReq)
+
 //Api to add blog
 router.post('/blogs/add-blogs',uploadPDF.single('image'),adminController.addBlogs)
 

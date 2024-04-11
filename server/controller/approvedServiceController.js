@@ -2,6 +2,7 @@
 const approvedServiceProvider = require('../model/approvedServiceprovider')
 const serverviceProviders = require('../model/serviceproviderSchema')
 const serviceProviderAttendence = require('../model/attendenceServiceProvider')
+const serviceProviderLeaveReq=require('../model/leaveReqSchema')
 
 
 
@@ -11,6 +12,7 @@ const jwt = require('jsonwebtoken')
 // nodemailer import
 const nodemailer = require('nodemailer');
 const serviceProvider = require('../model/serviceproviderSchema');
+const leaveRequest = require('../model/leaveReqSchema')
 
 
 //Logic to approve serviceProvider
@@ -67,9 +69,9 @@ exports.rejectServiceProviderReq = async (req, res) => {
         if (!deleteReq) {
             return res.status(404).json({ message: 'Service provider not found' });
         }
-        // textmessage = 'Your request as a service provider has been rejected by the admin.'
-        // subjectmail = 'Rejection Mail...!!!'
-        // await sendConfirmationEmail(email, subjectmail, textmessage);
+        textmessage = 'Your request as a service provider has been rejected by the admin.'
+        subjectmail = 'Rejection Mail...!!!'
+        await sendConfirmationEmail(email, subjectmail, textmessage);
         res.status(200).json({ deleteReq, message: 'Service provider request deleted' });
     } catch (error) {
         console.error(error);
@@ -88,7 +90,8 @@ exports.serviceProviderLogin = async (req, res) => {
         const existingUser = await approvedServiceProvider.findOne({ email, password })
         if (existingUser !== null && existingUser !== undefined) {
             const token = jwt.sign({
-                serviceProviderid: existingUser._id
+                serviceProviderid: existingUser._id,
+                emailId:existingUser.email
             }, 'superkey2024')
             res.status(200).json({ existingUser, token, message: 'Login Sucessfull' })
         } else {
@@ -100,7 +103,7 @@ exports.serviceProviderLogin = async (req, res) => {
 }
 
 // mail send usimg  smtp(simple mail transfer protocol)
-async function sendConfirmationEmail(serviceProviderEmail) {
+async function sendConfirmationEmail(serviceProviderEmail,subjectmail,textmessage) {
     // Create a Nodemailer transporter using SMTP
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -167,7 +170,7 @@ exports.serviceProviderAttendance = async (req, res) => {
             }
 
             // Check if attendance for the service provider on the given date is already marked
-            const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId, time_in, time_out, working_hours, present: true });
+            const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId,date, time_in, time_out, working_hours, present: true });
             if (check) {
                 return res.status(400).json({ message: 'Attendance already marked' });
             }
@@ -186,5 +189,49 @@ exports.serviceProviderAttendance = async (req, res) => {
         res.status(500).json({ error, message: 'Internal server error' });
     }
 };
+
+//Logic for leave request
+exports.leaveRequest=async(req,res)=>{
+    console.log('inside api call to leave request');
+    const {date,reason,additionalNotes}=req.body   
+     try {
+        console.log(reason,date,additionalNotes)
+        const token = req.headers.authorization;
+        console.log(token);
+            if (!token) {
+              return res.status(401).json({ message: "Unauthorized: No token provided" });
+            }
+            jwt.verify(token, 'superkey2024', async (err, decoded) => {
+              if (err) {
+                return res.status(403).json({ message: 'Forbidden: Invalid token' });
+              }
+              const userId = decoded.serviceProviderid;
+              const emailId =decoded.emailId
+             const user = await serviceProviderLeaveReq.findOne({serviceProviderId:userId ,date})
+             if(user){
+              res.status(400).json({message:"Leave Request already marked"})
+             }
+             else{
+              const newleaveReq = new serviceProviderLeaveReq({
+                serviceProviderId:userId,
+                email:emailId,
+                date,
+                reason,
+                additionalNotes,
+                status:"pending"
+              })
+              await newleaveReq.save()
+              res.status(200).json({message:"Waiting for admin confirmation"})
+             }
+    
+    
+      })
+      } catch (error) {
+        res.status(500).json({message:"Internal server error"})
+    
+      }
+}
+
+
 
 

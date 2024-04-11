@@ -4,6 +4,37 @@ const serviceProvider=require('../model/serviceproviderSchema')
 
 const blogs=require('../model/blogSchema')
 const webinar=require('../model/webinarSchema')
+const serviceProviderLeaveReq=require('../model/leaveReqSchema')
+const serviceProviderAttendence = require('../model/attendenceServiceProvider')
+
+// nodemailer import
+const nodemailer = require('nodemailer');
+
+// mail send usimg  smtp(simple mail transfer protocol)
+async function sendConfirmationEmail(serviceProviderEmail,subject,textMessage) {
+    // Create a Nodemailer transporter using SMTP
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+            user: process.env.gmail, // Admin's email
+            pass: process.env.gmailpsw // Admin's password
+        }
+    });
+
+
+    // Send mail with defined transport object
+    const info = await transporter.sendMail({
+        from: 'projectmern123@gmail.com', // Admin's email address
+        to: [serviceProviderEmail], // Service provider's email address
+        subject: subject,
+        text: textMessage
+    });
+
+    console.log('Confirmation email sent: ', info.messageId);
+}
 
 // Logic for User-login
 exports.adminLogin=async(req,res)=>{
@@ -209,5 +240,102 @@ exports.deleteWebinar=async(req,res)=>{
         res.status(500).json({message:'Internal server error'})
         
     }
+
+}
+
+//Logic to get all leave request
+exports.getAllLeaveReq=async(req,res)=>{
+    console.log('inside api call to get all leave req')
+    try {
+        const allReq=await serviceProviderLeaveReq.find()
+        res.status(200).json({allReq,message:'List of all leave req'})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})
+    }
+}
+
+//Logic to reject leave request
+exports.rejectLeaveReq=async(req,res)=>{
+    console.log('inside api call to reject leave req')
+    const{id}=req.body
+    try {
+        const rejectReq = await serviceProviderLeaveReq.findByIdAndUpdate(
+            id,
+            
+            {
+              $set: {
+                status:'Rejected'
+              },
+            },
+            { new: true }
+          );
+          const mail=rejectReq.email
+          console.log(mail);
+          textMessage='Your Leave Application Rejected...! Please Contact Your Admin Personally For Any Queries...'
+          subject='Rejected Leave Request....!'
+           sendConfirmationEmail(mail,subject,textMessage) 
+
+          res.status(200).json({rejectReq,message:'Leave Request rejected'});
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"}) 
+    }
+}
+
+//Logic to get all leave request
+exports.getAllLeaveReq=async(req,res)=>{
+    console.log('inside api call to get all leave req')
+    try {
+        const allReq=await serviceProviderLeaveReq.find()
+        res.status(200).json({allReq,message:'List of all leave req'})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})
+    }
+}
+
+//Logic to accept leave request
+exports.acceptLeaveReq=async(req,res)=>{
+    console.log('inside api call to accept leave request')
+    const{id}=req.body
+    try {
+        const user=await serviceProviderLeaveReq.findById(id)
+        const userId=user.serviceProviderId
+        const Date=user.date
+        console.log(userId,Date)
+
+        const checkServiceProvider=await serviceProviderAttendence.findOne({serviceProvidersId:userId,date:Date})
+        console.log(checkServiceProvider);
+        if(checkServiceProvider){
+            res.status(404).json({message:'Connot Approve Leave Request Due to service Provider already marked attandence on same date'})
+        }else{
+            console.log("insideattendance");
+
+            const acceptReq = await serviceProviderLeaveReq.findByIdAndUpdate(
+                id,
+                
+                {
+                  $set: {
+                    status:'Accepted'
+                  },
+                },
+                { new: true }
+              );
+              const mail=acceptReq.email
+              console.log(mail);
+              textMessage='Your Leave Application is Accepted'
+              subject='Leave Request Accepted'
+               sendConfirmationEmail(mail,subject,textMessage) 
+    
+    
+              res.status(200).json({acceptReq,message:'Leave Request Accepted'});
+            
+        }
+
+        } catch (error) {
+            res.status(500).json({message:"Internal server error"}) 
+        }
+
 
 }
