@@ -339,3 +339,13 @@ exports.acceptLeaveReq=async(req,res)=>{
 
 
 }
+
+//logic to get all attendence 
+exports.getAllAttendence=async(req,res)=>{
+    try {
+     const AllAttendence=await serviceProviderAttendence.find()   
+     res.status(200).json({AllAttendence,message:"List of all service providers attendence "})
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"}) 
+    } 
+}

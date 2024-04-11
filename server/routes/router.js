@@ -71,6 +71,9 @@ router.post('/serviceProvider/login',approvedServiceProvider.serviceProviderLogi
 //service provider attendence
 router.post('/serviceProvider/attendence',approvedServiceProvider.serviceProviderAttendance)
 
+//Api to get all attendence list inside the admin dashboard
+router.get('/service-providers/attenedence',adminController.getAllAttendence)
+
 //Api to send service provider leave request
 router.post('/serviceProvider/leave-request',approvedServiceProvider.leaveRequest)
 
