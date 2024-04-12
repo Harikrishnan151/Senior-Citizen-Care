@@ -70,7 +70,7 @@ exports.addBlogs = async (req, res) => {
     console.log("inside Api call to add Blogs");
   
     const blogImg = req.file.filename;
-    const blog=`http://localhost:5000/UploadBlogImage/${blogImg}`
+    const blog=`http://localhost:5000/uploadCertificate/${blogImg}`
     const { title, date, description } = req.body;
   
     try {
@@ -151,7 +151,7 @@ exports.deleteBlog=async(req,res)=>{
 exports.addWebinar=async(req,res)=>{
     console.log('inside api call to add webinar')
     const webinarImg=req.file.filename
-    const webinarphoto=`http://localhost:5000/uploadWebinarImg/${webinarImg}`
+    const webinarphoto=`http://localhost:5000/uploadCertificate/${webinarImg}`
     const {title,topics,date,time,image,description,speaker}=req.body
     try { 
         if(!title || !topics || !date || !time || !description || !speaker){
