@@ -10,8 +10,7 @@ const express=require('express')
 //9) Import connection.js file for connecting mongoDB
   require('./connection')
 
-//10)  Import router
-const router=require('./routes/router')
+
 
 
 //3) Create a application using express
@@ -24,6 +23,16 @@ const server=express()
 server.listen(PORT,()=>{
     console.log('Server listening to port' +PORT);
 })
+
+//enable image folder
+server.use('/UploadblogImage',express.static('./UploadblogImage'))  
+server.use('/uploadCertificate',express.static('./uploadCertificate'))  
+server.use('/uploadImage',express.static('./uploadImage'))  
+server.use('/uploadWebinarImg',express.static('./uploadWebinarImg'))  
+
+
+//10)  Import router
+const router=require('./routes/router')
 
 //7) Use cors
 //  server.use(cors())
