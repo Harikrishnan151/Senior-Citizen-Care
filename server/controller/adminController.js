@@ -66,28 +66,6 @@ exports.getAllserviceproviders=async(req,res)=>{
 }
 
 //Logic to add Bolgs
-// exports.addBlogs=async(req,res)=>{
-//     console.log('inside Api call to add Blogs');
-//     const BlogImg=req.file.filename
-//     const {title,date,image,description}=req.body
-//     console.log(image);
-//     try {
-//         console.log(title,date,image,description);
-//         if (!title || !date || !description) {
-//             return res.status(400).json({ message: 'Missing required fields' });
-//         }else{
-//             const newBlog=new blogs({
-//                 title,date,image:BlogImg,description
-//             });
-//             await newBlog.save()
-//             res.status(200).json({newBlog,message:'Blog added succesfully'})
-//         }
-//     } catch (error) {
-//         console.log(error);
-//         res.status(500).json({message:'Internal server error'})
-        
-//     }
-// }
 exports.addBlogs = async (req, res) => {
     console.log("inside Api call to add Blogs");
   
@@ -272,9 +250,9 @@ exports.rejectLeaveReq=async(req,res)=>{
           );
           const mail=rejectReq.email
           console.log(mail);
-          textMessage='Your Leave Application Rejected...! Please Contact Your Admin Personally For Any Queries...'
-          subject='Rejected Leave Request....!'
-           sendConfirmationEmail(mail,subject,textMessage) 
+        //   textMessage='Your Leave Application Rejected...! Please Contact Your Admin Personally For Any Queries...'
+        //   subject='Rejected Leave Request....!'
+        //    sendConfirmationEmail(mail,subject,textMessage) 
 
           res.status(200).json({rejectReq,message:'Leave Request rejected'});
         
@@ -324,9 +302,9 @@ exports.acceptLeaveReq=async(req,res)=>{
               );
               const mail=acceptReq.email
               console.log(mail);
-              textMessage='Your Leave Application is Accepted'
-              subject='Leave Request Accepted'
-               sendConfirmationEmail(mail,subject,textMessage) 
+            //   textMessage='Your Leave Application is Accepted'
+            //   subject='Leave Request Accepted'
+            //    sendConfirmationEmail(mail,subject,textMessage) 
     
     
               res.status(200).json({acceptReq,message:'Leave Request Accepted'});
