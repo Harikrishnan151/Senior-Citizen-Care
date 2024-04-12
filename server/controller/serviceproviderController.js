@@ -3,8 +3,9 @@ const serviceProvider=require('../model/serviceproviderSchema')
 
 //logic for primary  serviceProvider registeration
 exports.serviceProviderRegisteration=async(req,res)=>{
-
+    
     const exp_crt=req.file.filename
+    const newExp=`http://localhost:5000/uploadCertificate/${exp_crt}`
     // const img=req.file.filename
     // console.log(exp_crt);
     // console.log(img);
@@ -15,7 +16,7 @@ exports.serviceProviderRegisteration=async(req,res)=>{
             res.status(400).json({message:'Account already exist'}) 
         }else{
             const newUser=new serviceProvider({
-                username,email,password,mobile,profile_img:'',service,specialization,experience_crt:exp_crt,qualification,exp_year,rate,location
+                username,email,password,mobile,profile_img:'',service,specialization,experience_crt:newExp,qualification,exp_year,rate,location
             });
             await newUser.save();
             res.status(200).json({newUser,message:'primary registeration completed'})
@@ -30,6 +31,7 @@ exports.serviceProviderRegisteration=async(req,res)=>{
 //Logic for secondary serviceProvider registration
 exports.finalReg=async(req,res)=>{
     const img=req.file.filename
+    const newImg=`http://localhost:5000/uploadImage/${img}`
     const {email}=req.body
     try{
         const existingUser=await serviceProvider.findOne({email:email})
@@ -39,7 +41,7 @@ exports.finalReg=async(req,res)=>{
             const filter={email};
             const update={
                 $set:{
-                    profile_img:img
+                    profile_img:newImg
                 }
             }
             const result=await serviceProvider.updateOne(filter,update)

@@ -1,7 +1,7 @@
 //1) import admin model
 const admins=require('../model/adminSchema')
 const serviceProvider=require('../model/serviceproviderSchema')
-
+const approvedServiceProvider = require('../model/approvedServiceprovider')
 const blogs=require('../model/blogSchema')
 const webinar=require('../model/webinarSchema')
 const serviceProviderLeaveReq=require('../model/leaveReqSchema')
@@ -70,10 +70,11 @@ exports.addBlogs = async (req, res) => {
     console.log("inside Api call to add Blogs");
   
     const blogImg = req.file.filename;
+    const blog=`http://localhost:5000/UploadBlogImage/${blogImg}`
     const { title, date, description } = req.body;
   
     try {
-      console.log(title, date, blogImg, description); // Changed 'image' to 'blogImg'
+      console.log(title, date, blog, description); // Changed 'image' to 'blogImg'
   
       if (!title || !date || !description) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -81,7 +82,7 @@ exports.addBlogs = async (req, res) => {
         const newBlog = new blogs({
           title,
           date,
-          image: blogImg,
+          image: blog,
           description, // Changed 'image' to 'blogImg'
         });
   
@@ -150,13 +151,14 @@ exports.deleteBlog=async(req,res)=>{
 exports.addWebinar=async(req,res)=>{
     console.log('inside api call to add webinar')
     const webinarImg=req.file.filename
+    const webinarphoto=`http://localhost:5000/uploadWebinarImg/${webinarImg}`
     const {title,topics,date,time,image,description,speaker}=req.body
     try { 
         if(!title || !topics || !date || !time || !description || !speaker){
             return res.status(400).json({ message: 'Missing required fields' }); 
         }else{
             const newWebinar=new webinar({
-                title,topics,date,time,image:webinarImg,description,speaker
+                title,topics,date,time,image:webinarphoto,description,speaker
             });
             await newWebinar.save()
             res.status(200).json({newWebinar,message:'Webinar added succesfully'})

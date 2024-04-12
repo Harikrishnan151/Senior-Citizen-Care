@@ -91,7 +91,7 @@ exports.serviceProviderLogin = async (req, res) => {
         if (existingUser !== null && existingUser !== undefined) {
             const token = jwt.sign({
                 serviceProviderid: existingUser._id,
-                emailId:existingUser.email
+                emailId:existingUser.email,
             }, 'superkey2024')
             res.status(200).json({ existingUser, token, message: 'Login Sucessfull' })
         } else {
@@ -210,6 +210,9 @@ exports.leaveRequest=async(req,res)=>{
               const userId = decoded.serviceProviderid;
               const emailId =decoded.emailId
              const user = await serviceProviderLeaveReq.findOne({serviceProviderId:userId ,date})
+             const serviceProvider=await approvedServiceProvider.findOne({_id:userId})
+             const name=serviceProvider.username
+             const image=serviceProvider.profile_img
              if(user){
               res.status(400).json({message:"Leave Request already marked"})
              }
@@ -217,13 +220,15 @@ exports.leaveRequest=async(req,res)=>{
               const newleaveReq = new serviceProviderLeaveReq({
                 serviceProviderId:userId,
                 email:emailId,
+                name,
+                image,
                 date,
                 reason,
                 additionalNotes,
                 status:"pending"
               })
               await newleaveReq.save()
-              res.status(200).json({message:"Waiting for admin confirmation"})
+              res.status(200).json({newleaveReq,message:"Waiting for admin confirmation"})
              }
     
     
