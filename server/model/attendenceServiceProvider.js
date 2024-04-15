@@ -23,6 +23,11 @@ const serviceProviderAttendeceSchema=new mongoose.Schema({
         type:String,
         required: true
     },
+    serviceProviderEmail:{
+        type:String,
+        required: true
+    },
+
     present:{
         type:Boolean,
         required: true

@@ -163,8 +163,10 @@ exports.serviceProviderAttendance = async (req, res) => {
             if (err) {
                 return res.status(403).json({ message: 'Forbidden invalid token' })
             }
-            req.userId = decoded.serviceProviderid
+            req.userId = decoded.serviceProviderid,
+            req.userEmail = decoded.emailId
             const userId = req.userId;
+            const userEmail=req.userEmail 
             console.log(userId);
             // Check if the service provider exists
             const user = await approvedServiceProvider.findOne({ _id: userId });
@@ -173,14 +175,14 @@ exports.serviceProviderAttendance = async (req, res) => {
             }
 
             // Check if attendance for the service provider on the given date is already marked
-            const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId,date, time_in, time_out, working_hours, present: true });
+            const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId,serviceProviderEmail:userEmail,date, time_in, time_out, working_hours, present: true });
             if (check) {
                 return res.status(400).json({ message: 'Attendance already marked' });
             }
 
             // Create new attendance record
             const newAttendance = new serviceProviderAttendence({
-                date, time_in, time_out, working_hours, serviceProvidersId: userId, present
+                date, time_in, time_out, working_hours, serviceProvidersId: userId,serviceProviderEmail:userEmail, present
             });
             await newAttendance.save();
 
@@ -193,6 +195,33 @@ exports.serviceProviderAttendance = async (req, res) => {
     }
 };
 
+//Logic to get service provider attendence list
+exports.getAttendence=async(req,res)=>{
+   console.log('inside api call to get service provider attendence')
+   try {
+    const token = req.headers.authorization;
+    console.log(token);
+        if (!token) {
+          return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
+        jwt.verify(token, 'superkey2024', async (err, decoded) => {
+          if (err) {
+            return res.status(403).json({ message: 'Forbidden: Invalid token' });
+          }
+          const userId = decoded.serviceProviderid;
+          console.log(userId);
+          const attendence= await serviceProviderAttendence.find({serviceProvidersId:userId})
+          if(!attendence){
+            res.status(400).json({message:"No attendece available "})
+          }
+          else{
+            res.status(200).json({attendence,message:"Attendence List"})
+ }
+})  
+   } catch (error) {
+    res.status(500).json({ error, message: 'Internal server error' });
+   }
+}
 
 
 //Logic for leave request
@@ -243,31 +272,118 @@ exports.leaveRequest=async(req,res)=>{
 }
 
 //Logic to get user booking request in service provider dashboard
-exports.getUserBookings=async(req,res)=>{
-    console.log('inside api call to get user bookings')
+// exports.getUserBookings=async(req,res)=>{
+//     console.log('inside api call to get user bookings')
+//     try {
+//         const token = req.headers.authorization;
+//         console.log(token);
+//             if (!token) {
+//               return res.status(401).json({ message: "Unauthorized: No token provided" });
+//             }
+//             jwt.verify(token, 'superkey2024', async (err, decoded) => {
+//               if (err) {
+//                 return res.status(403).json({ message: 'Forbidden: Invalid token' });
+//               }
+//               const userId = decoded.serviceProviderid;
+//               console.log(userId);
+//               const user = await Bookings.find({serviceProviderId:userId})
+//               console.log(user)
+//               if(!user){
+//                 res.status(400).json({message:"No bookings available"})
+//               }
+//               else{
+//                 res.status(200).json({user,message:"successfully fetched"})
+//      }
+//     })} catch (error) {
+//             res.status(500).json({message:"Internal server error"})
+//     }
+// }
+
+exports.getUserBookings = async (req, res) => {
+    console.log('inside api call to get user bookings');
     try {
         const token = req.headers.authorization;
         console.log(token);
-            if (!token) {
-              return res.status(401).json({ message: "Unauthorized: No token provided" });
-            }
-            jwt.verify(token, 'superkey2024', async (err, decoded) => {
-              if (err) {
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
+        jwt.verify(token, 'superkey2024', async (err, decoded) => {
+            if (err) {
                 return res.status(403).json({ message: 'Forbidden: Invalid token' });
-              }
-              const userId = decoded.serviceProviderid;
-              console.log(userId);
-              const user = await Bookings.find({serviceProviderId:userId})
-              console.log(user)
-              if(!user){
-                res.status(400).json({message:"No bookings available"})
-              }
-              else{
-                res.status(200).json({user,message:"successfully fetched"})
-     }
-    })} catch (error) {
-            res.status(500).json({message:"Internal server error"})
+            }
+            const userId = decoded.serviceProviderid;
+            console.log(userId);
+            const userBookings = await Bookings.find({ serviceProviderId: userId, serviceProviderStatus: "pending" });
+            console.log(userBookings);
+            if (userBookings.length === 0) {
+                res.status(400).json({ message: "No pending bookings available for this user" });
+            } else {
+                res.status(200).json({ userBookings, message: "Successfully fetched" });
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
     }
+};
+//Logic to accept user bookings 
+exports.acceptBooking=async(req,res)=>{
+    console.log('inside api call to accept user bookings')
+    const {id}=req.body
+    try {
+        const userBookings=await Bookings.findById(id)
+        const bookingId=userBookings._id
+        const status=userBookings.serviceProviderStatus
+
+        const check=await Bookings.findOne({_id:bookingId,serviceProviderStatus:status})
+        if(check.serviceProviderStatus === 'Accepted'){
+            res.status(404).json({message:'Booking request already accepted'})
+        }else{
+            const acceptUserBooking= await Bookings.findByIdAndUpdate(id,{
+                $set: {
+                    serviceProviderStatus:'Accepted'
+                  },
+            },
+            { new: true }
+        );
+        res.status(200).json({acceptUserBooking,message:'Booking accepted by service provider, waiting for admin confirmation'});
+            
+        }
+
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})  
+    }
+
+}
+
+//Logic to reject user booking
+exports.rejectBooking=async(req,res)=>{
+  console.log('inside api call to reject user bookings')
+  const {id}=req.body
+  try {
+    const userBookings=await Bookings.findById(id)
+    const bookingId=userBookings._id
+    const status=userBookings.serviceProviderStatus
+
+    const check=await Bookings.findOne({_id:bookingId,serviceProviderStatus:status})
+    if(check.serviceProviderStatus === 'Rejected'){
+        res.status(404).json({message:'Booking request already Rejected'})
+    }else{
+        const acceptUserBooking= await Bookings.findByIdAndUpdate(id,{
+            $set: {
+                serviceProviderStatus:'Rejected'
+              },
+        },
+        { new: true }
+    );
+    res.status(200).json({acceptUserBooking,message:'Booking Rejected by service provider, please check other available service providers '});
+        
+    }
+
+} catch (error) {
+    res.status(500).json({message:"Internal server error"})  
+}
+
+  
 }
 
 

@@ -119,6 +119,21 @@ router.post('/service-provider/primary-booking',userController.PrimaryBooking)
 //Api to get user bookings in service provider dashboard
 router.get('/bookings/user-bookings',approvedServiceProvider.getUserBookings)
 
+//Api to get service provider own attendence
+router.get('/attendence/serviceProvider',approvedServiceProvider.getAttendence)
+
+//Api to accept user booking by service provider
+router.post('/userBooking/serviceProvider/accept',approvedServiceProvider.acceptBooking)
+
+//Api to reject user booking by service provider
+router.post('/userBooking/serviceProvider/reject',approvedServiceProvider.rejectBooking)
+
+//Api to get service provider accepted bookings inside admin dashboard
+router.get('/bookings/accepted-bookings',adminController.getAcceptedBooking)
+
+//Api to get service provider accepted bookings inside admin dashboard
+router.get('/bookings/rejected-bookings',adminController.getRejectedBooking)
+
 //4) export routes
 module.exports=router
 

@@ -7,9 +7,10 @@ const webinar=require('../model/webinarSchema')
 const serviceProviderLeaveReq=require('../model/leaveReqSchema')
 const serviceProviderAttendence = require('../model/attendenceServiceProvider')
 const readyToBook=require('../model/readyToBook')
-
+const Bookings = require('../model/bookings')
 // nodemailer import
 const nodemailer = require('nodemailer');
+
 
 // mail send usimg  smtp(simple mail transfer protocol)
 async function sendConfirmationEmail(serviceProviderEmail,subject,textMessage) {
@@ -265,16 +266,16 @@ exports.rejectLeaveReq=async(req,res)=>{
 }
 
 //Logic to get all leave request
-exports.getAllLeaveReq=async(req,res)=>{
-    console.log('inside api call to get all leave req')
-    try {
-        const allReq=await serviceProviderLeaveReq.find()
-        res.status(200).json({allReq,message:'List of all leave req'})
+// exports.getAllLeaveReq=async(req,res)=>{
+//     console.log('inside api call to get all leave req')
+//     try {
+//         const allReq=await serviceProviderLeaveReq.find()
+//         res.status(200).json({allReq,message:'List of all leave req'})
         
-    } catch (error) {
-        res.status(500).json({message:"Internal server error"})
-    }
-}
+//     } catch (error) {
+//         res.status(500).json({message:"Internal server error"})
+//     }
+// }
 
 //Logic to accept leave request
 exports.acceptLeaveReq=async(req,res)=>{
@@ -329,4 +330,28 @@ exports.getAllAttendence=async(req,res)=>{
     } catch (error) {
         res.status(500).json({message:"Internal server error"}) 
     } 
+}
+
+//Logic to get accepted booking request inside admin dashboard
+exports.getAcceptedBooking=async(req,res)=>{
+    console.log('inside api call to get service provider accepted request')
+    try {
+        const acceptedBookings=await Bookings.find({serviceProviderStatus: "Accepted" })
+        res.status(200).json({acceptedBookings,message:'List of service provider accepted bookings'})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})  
+    }
+}
+
+//Logic to get Rejected booking request inside admin dashboard
+exports.getRejectedBooking=async(req,res)=>{
+    console.log('inside api call to get service provider accepted request')
+    try {
+        const rejectedBookings=await Bookings.find({serviceProviderStatus: "Rejected" })
+        res.status(200).json({rejectedBookings,message:'List of service provider accepted bookings'})
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})  
+    }
 }
