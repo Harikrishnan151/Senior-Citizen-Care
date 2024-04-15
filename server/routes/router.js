@@ -110,6 +110,15 @@ router.get('/webinar/view-webinar/:id',adminController.viewWebinar)
 //Api call to delete webinar
 router.delete('/webinar/delete-webinar',adminController.deleteWebinar)
 
+//Api to search service provider
+router.post('/search/service-provider',userController.searchServiceProvider)
+
+//Api for primary serviceProvider Booking
+router.post('/service-provider/primary-booking',userController.PrimaryBooking)
+
+//Api to get user bookings in service provider dashboard
+router.get('/bookings/user-bookings',approvedServiceProvider.getUserBookings)
+
 //4) export routes
 module.exports=router
 

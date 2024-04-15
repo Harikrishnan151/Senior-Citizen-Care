@@ -6,6 +6,7 @@ const blogs=require('../model/blogSchema')
 const webinar=require('../model/webinarSchema')
 const serviceProviderLeaveReq=require('../model/leaveReqSchema')
 const serviceProviderAttendence = require('../model/attendenceServiceProvider')
+const readyToBook=require('../model/readyToBook')
 
 // nodemailer import
 const nodemailer = require('nodemailer');

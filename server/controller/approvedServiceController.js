@@ -13,6 +13,8 @@ const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const serviceProvider = require('../model/serviceproviderSchema');
 const leaveRequest = require('../model/leaveReqSchema')
+const readytoBook = require('../model/readyToBook')
+const Bookings = require('../model/bookings')
 
 
 //Logic to approve serviceProvider
@@ -28,7 +30,8 @@ exports.approveServiceProvider = async (req, res) => {
                 username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location
             })
             await newServiceProvider.save()
-
+            const readyUser=new readytoBook({ username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location})
+            await readyUser.save()
             const response = await serverviceProviders.findOne({ email: email })
             if (response) {
                 const result = await serverviceProviders.deleteOne({ email })
@@ -237,6 +240,34 @@ exports.leaveRequest=async(req,res)=>{
         res.status(500).json({message:"Internal server error"})
     
       }
+}
+
+//Logic to get user booking request in service provider dashboard
+exports.getUserBookings=async(req,res)=>{
+    console.log('inside api call to get user bookings')
+    try {
+        const token = req.headers.authorization;
+        console.log(token);
+            if (!token) {
+              return res.status(401).json({ message: "Unauthorized: No token provided" });
+            }
+            jwt.verify(token, 'superkey2024', async (err, decoded) => {
+              if (err) {
+                return res.status(403).json({ message: 'Forbidden: Invalid token' });
+              }
+              const userId = decoded.serviceProviderid;
+              console.log(userId);
+              const user = await Bookings.find({serviceProviderId:userId})
+              console.log(user)
+              if(!user){
+                res.status(400).json({message:"No bookings available"})
+              }
+              else{
+                res.status(200).json({user,message:"successfully fetched"})
+     }
+    })} catch (error) {
+            res.status(500).json({message:"Internal server error"})
+    }
 }
 
 

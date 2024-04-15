@@ -1,12 +1,16 @@
 
 //1) import users model
 const users=require('../model/userSchema')
+const readytoBook = require('../model/readyToBook')
+const bookings=require('../model/bookings')
+
 
 //import bcryptjs for hide the password
 const bcryptjs = require('bcryptjs');
 
 //import jwt-token to authenticate user
-const jwt=require('jsonwebtoken') 
+const jwt=require('jsonwebtoken'); 
+const Bookings = require('../model/bookings');
 
 
 // Logic for user registeration
@@ -43,7 +47,9 @@ exports.loginUser=async(req,res)=>{
         if(!validPassword)
          return res.status(401).json({message:'Incorrect password'})
          const token=jwt.sign({
-              userid:existingUser._id
+              userid:existingUser._id,
+              userEmailId:existingUser.email,
+              userName:existingUser.username
             },"superkey2024")
             res.cookie('access_token',token,{httpOnly :true}).status(200).json({existingUser,token})
     }catch(err){
@@ -169,4 +175,59 @@ exports.ResetUserPassword=async(req,res)=>{
         res.status(500).json({ message: 'Internal server error' });
 
     }
+}
+//Logic to search service provider
+exports.searchServiceProvider = async (req, res) => {
+  console.log('inside api call to search service provider');
+  const { location, service } = req.body;
+  try {
+      const searchUser = await readytoBook.find({ location, service });
+      if (searchUser.length === 0) {
+          res.status(400).json({ message: 'No service provider available in this location' });
+      } else {
+          res.status(200).json({ searchUser, message: 'List of service providers in this location' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+//logic to book service provider primery
+exports.PrimaryBooking=async(req,res)=>{
+  console.log('inside service provider Primary booking function')
+      const {typeOfCare,services,startingTime,endingTime,startDate,endDate,location,
+        serviceProviderName,service,serviceProviderId,profile_img,serviceProviderEmail,
+        serviceProviderMobile,rate}=req.body
+         console.log(typeOfCare,services,startingTime,endingTime,startDate,endDate,location,
+          serviceProviderName,service,serviceProviderId,profile_img,serviceProviderEmail,
+          serviceProviderMobile,rate);
+        try {
+          const token = req.headers.authorization;
+            console.log(token);
+         if (!token) {
+                  return res.status(401).json({ message: "Unauthorized: No token provided" });
+           }
+          jwt.verify(token, 'superkey2024', async (err, decoded) => {
+            if (err) {
+              return res.status(403).json({ message: 'Forbidden: Invalid token' });
+            }
+        
+          const userEmail= decoded.userEmailId
+           const userName=decoded.userName
+           const userId =decoded.userid
+
+        const PrimaryReg=await Bookings({userEmail,userName,userId,typeOfCare,services,
+          startingTime,endingTime,startDate,endDate,location,serviceProviderName,
+          service,serviceProviderId,profile_img,serviceProviderEmail, serviceProviderMobile,
+          rate,serviceProviderStatus:'pending',adminStatus:'pending'})
+
+         await PrimaryReg.save()
+          res.status(200).json({PrimaryReg,message:'Waiting For Service Provider Confirmation'})
+           
+        } )
+
+        } catch (error) {
+          res.status(500).json({ message: 'Internal server error' });  
+        }
 }
