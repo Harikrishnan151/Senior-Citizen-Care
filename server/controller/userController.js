@@ -3,6 +3,7 @@
 const users=require('../model/userSchema')
 const readytoBook = require('../model/readyToBook')
 const bookings=require('../model/bookings')
+const review=require('../model/reviewSchema')
 
 
 //import bcryptjs for hide the password
@@ -231,3 +232,62 @@ exports.PrimaryBooking=async(req,res)=>{
           res.status(500).json({ message: 'Internal server error' });  
         }
 }
+
+//Logic to add review to a service provider
+exports.addReview=async(req,res)=>{
+  console.log('inside api call to add review')
+  const {serviceProviderId,ratings,comments}=req.body
+  console.log(serviceProviderId,ratings,comments);
+  try {
+    const token = req.headers.authorization;
+    console.log(token);
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+    jwt.verify(token, 'superkey2024', async (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Forbidden: Invalid token' });
+        }
+        const username = decoded.userName;
+        console.log(username);
+        if (!ratings || !comments) {
+          return res.status(400).json({ message: "Missing required fields" });
+        } else {
+          const newReview = new review({
+            serviceProviderId,
+            username: username,
+            date: new Date(),
+            ratings,
+            comments
+          });
+          
+          await newReview.save();
+          
+          res.status(200).json({ newReview, message: "Review added successfully" });
+        }
+    
+    });
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });  
+  }
+}
+
+//Logic to get service provider reviews
+exports.getReviews=async(req,res)=>{
+  console.log('inside api call to get reviews')
+  const {id}=req.body
+  try {
+    const viewReviews=await review.findOne({serviceProviderId:id})
+    if(!viewReviews){
+      res.status(400).json({message:'No Reviews'})
+    }else{
+      res.status(200).json({viewReviews,message:'Reviews of service provider'})
+    }
+    
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });   
+  }
+
+}
+
