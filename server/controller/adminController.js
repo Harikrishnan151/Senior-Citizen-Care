@@ -38,7 +38,7 @@ async function sendConfirmationEmail(serviceProviderEmail,subject,textMessage) {
     console.log('Confirmation email sent: ', info.messageId);
 }
 
-// Logic for User-login
+// Logic for admin-login
 exports.adminLogin=async(req,res)=>{
     console.log("inside api call admin login");
     const {username,password}=req.body
@@ -349,7 +349,7 @@ exports.getRejectedBooking=async(req,res)=>{
     console.log('inside api call to get service provider accepted request')
     try {
         const rejectedBookings=await Bookings.find({serviceProviderStatus: "Rejected" })
-        res.status(200).json({rejectedBookings,message:'List of service provider accepted bookings'})
+        res.status(200).json({rejectedBookings,message:'List of service provider Rejected bookings'})
         
     } catch (error) {
         res.status(500).json({message:"Internal server error"})  

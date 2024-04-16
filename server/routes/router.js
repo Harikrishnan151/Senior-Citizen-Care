@@ -134,7 +134,7 @@ router.get('/bookings/accepted-bookings',adminController.getAcceptedBooking)
 //Api to get service provider accepted bookings inside admin dashboard
 router.get('/bookings/rejected-bookings',adminController.getRejectedBooking)
 
-//Api to add review
+//Api to add reviews
 router.post('/review/add-review',userController.addReview)
 
 //Api to view reviews
