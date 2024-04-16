@@ -5,12 +5,10 @@ const reviewSchema=new mongoose.Schema({
     serviceProviderId:{
         type:String,
         required:true
-
     },
     username:{
         type:String,
-        required:true,
-       
+        required:true,    
     },
     date:{
         type:String,
@@ -24,8 +22,6 @@ const reviewSchema=new mongoose.Schema({
         type:String,
         required:true
     }
-    
-
 })
 
 //3) Create a model to store user

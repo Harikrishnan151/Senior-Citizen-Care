@@ -5,7 +5,6 @@ const readyToBookSchema=new mongoose.Schema({
     username:{
         type:String,
         required:true
-
     },
     email:{
         type:String,
@@ -49,6 +48,10 @@ const readyToBookSchema=new mongoose.Schema({
         required:true
     },
     location:{
+        type:String,
+        required:true
+    },
+    serviceProvidersId:{
         type:String,
         required:true
     }

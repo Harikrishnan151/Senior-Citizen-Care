@@ -30,10 +30,13 @@ exports.approveServiceProvider = async (req, res) => {
                 username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location
             })
             await newServiceProvider.save()
-            const readyUser=new readytoBook({ username, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location})
-            await readyUser.save()
-            const response = await serverviceProviders.findOne({ email: email })
+            
+
+            const response = await approvedServiceProvider.findOne({ email: email })
             if (response) {
+                const id=response._id
+                const readyUser=new readytoBook({ username,serviceProvidersId:id, email, password, mobile, profile_img, service, specialization, qualification, experience_crt, exp_year, rate ,location})
+                await readyUser.save()
                 const result = await serverviceProviders.deleteOne({ email })
                 // textmessage = 'Your request as a service provider has been approved. You can now login to the platform and start offering your services.'
                 // subjectmail = 'Service Provider Approval Confirmation'
