@@ -20,7 +20,7 @@ const readyToBookSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    profile_image:{
+    profile_img:{
         type:String
 
     },
