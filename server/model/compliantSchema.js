@@ -3,11 +3,11 @@ const mongoose = require('mongoose')
 
 //2) Define Schema to store user collection
 const complaintSchema = new mongoose.Schema({
-    userId: {
+    senderId: {
         type: String,
        
     },
-    adminId:{
+    receiverId:{
         type:String,
         
     },

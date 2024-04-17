@@ -6,6 +6,7 @@ const userController=require('../controller/userController')
 const adminController=require('../controller/adminController')
 const serviveproviderController=require('../controller/serviceproviderController')
 const approvedServiceProvider=require('../controller/approvedServiceController')
+const chats=require('../controller/chatController')
 
 //import certificate multer file
 const upload=require('../multer/storageConfig')
@@ -139,6 +140,12 @@ router.post('/review/add-review',userController.addReview)
 
 //Api to view reviews
 router.get('/reviews/view-reviews',userController.getReviews)
+
+//Api to post chat
+router.post('/user/sendchat',chats.sendMessage)
+
+//Api to get chat
+router.get('/getMessages/:userId1/:userId2',chats.getMessages);
 
 //4) export routes
 module.exports=router

@@ -61,9 +61,9 @@ exports.rejectServiceProviderReq = async (req, res) => {
         if (!deleteReq) {
             return res.status(404).json({ message: 'Service provider not found' });
         }
-        textmessage = 'Your request as a service provider has been rejected by the admin.'
-        subjectmail = 'Rejection Mail...!!!'
-        await sendConfirmationEmail(email, subjectmail, textmessage);
+        // textmessage = 'Your request as a service provider has been rejected by the admin.'
+        // subjectmail = 'Rejection Mail...!!!'
+        // await sendConfirmationEmail(email, subjectmail, textmessage);
         res.status(200).json({ deleteReq, message: 'Service provider request deleted' });
     } catch (error) {
         console.error(error);
