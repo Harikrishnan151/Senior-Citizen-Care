@@ -458,3 +458,50 @@ exports.getUnpaidBill = async(req,res)=>{
 
   }
 }
+
+//Logic to get all service providrs frommreadytobook
+exports.getAllServiceProviders=async(req,res)=>{
+  console.log('inside api call to get all service providers from ready to book')
+  try {
+    const allServiceProviders=await readytoBook.find()
+    res.status(200).json({allServiceProviders,message:"list all service providers that are ready to book"})
+    
+  } catch (error) {
+    res.status(500).json({message:"internal server error"})
+  }
+}
+
+//Logic to get user payment history
+exports.getPaymentHistory=async(req,res)=>{
+  console.log('inside api call to get payment history')
+  try {
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+
+    jwt.verify(token, "superkey2024", async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Forbidden: Invalid token' });
+      }
+
+      const userEmail = decoded.userEmailId;
+      const userName = decoded.userName;
+      const userId = decoded.userid;
+
+      // const user = await Bookings.findById(id);
+      // if (!user) {
+      //   return res.status(404).json({ message: "No booking data available" });
+      // }
+
+      const transactionHistory=await transactions.find({fromID:userId})
+      res.status(200).json({transactionHistory,message:"transaction history of user"})
+    });
+    
+  } catch (error) {
+    
+    res.status(500).json({message:"internal server error"})
+  }
+
+}

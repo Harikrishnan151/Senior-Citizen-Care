@@ -157,6 +157,12 @@ router.post('/maternalcare/primarybooking/user/payment/view',userController.paym
 //get unpaid bill on userPage
 router.get('/maternalcare/primarybooking/billunpaid/view',userController.getUnpaidBill)
 
+//Api to all service providers from readytobook
+router.get('/serviceProviders/allServiceProviders',userController.getAllServiceProviders)
+
+//Api to get transaction history of user
+router.get('/history/transaction-history',userController.getPaymentHistory)
+
 //4) export routes
 module.exports=router
 
