@@ -8,6 +8,8 @@ const serviceProviderLeaveReq=require('../model/leaveReqSchema')
 const serviceProviderAttendence = require('../model/attendenceServiceProvider')
 const readyToBook=require('../model/readyToBook')
 const Bookings = require('../model/bookings')
+
+const transactions=require('../model/transactions')
 // nodemailer import
 const nodemailer = require('nodemailer');
 
@@ -390,6 +392,18 @@ exports.confirmBooking = async(req,res)=>{
      res.status(500).json({message:"server error"})
  
    }
+ }
+
+ //Logic to get all transactions
+ exports.allTransactions=async(req,res)=>{
+    console.log('inside api call to get all transactions')
+    try {
+        const transactionsaDetails=await transactions.find()
+        res.status(200).json({transactionsaDetails,message:'transaction details'})
+        
+    } catch (error) {
+        res.status(500).json({message:"server error"})
+    }
  }
 
 
