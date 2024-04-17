@@ -53,20 +53,6 @@ exports.approveServiceProvider = async (req, res) => {
 }
 
 //Logic to reject service providers approval request
-// exports.rejectServiceProviderReq=async(req,res)=>{
-//     const{email}=req.body
-//     try {
-//         const deleteReq=await serverviceProviders.deleteOne({email})
-//         textmessage = 'Your request as a service provider has been rejected by the admin.'
-//         subjectmail = 'Rejection Mail...!!!'
-//         await sendConfirmationEmail(email, subjectmail, textmessage);
-//         res.status(200).json({deleteReq,message:'Service provider request deleted'})
-//     } catch (error) {
-//         res.status(500).json({ message: 'internal server error' })
-//     }
-
-// }
-
 exports.rejectServiceProviderReq = async (req, res) => {
     console.log('inside Api call to reject user approval..!!!')
     const { email } = req.body;
@@ -275,33 +261,6 @@ exports.leaveRequest=async(req,res)=>{
 }
 
 //Logic to get user booking request in service provider dashboard
-// exports.getUserBookings=async(req,res)=>{
-//     console.log('inside api call to get user bookings')
-//     try {
-//         const token = req.headers.authorization;
-//         console.log(token);
-//             if (!token) {
-//               return res.status(401).json({ message: "Unauthorized: No token provided" });
-//             }
-//             jwt.verify(token, 'superkey2024', async (err, decoded) => {
-//               if (err) {
-//                 return res.status(403).json({ message: 'Forbidden: Invalid token' });
-//               }
-//               const userId = decoded.serviceProviderid;
-//               console.log(userId);
-//               const user = await Bookings.find({serviceProviderId:userId})
-//               console.log(user)
-//               if(!user){
-//                 res.status(400).json({message:"No bookings available"})
-//               }
-//               else{
-//                 res.status(200).json({user,message:"successfully fetched"})
-//      }
-//     })} catch (error) {
-//             res.status(500).json({message:"Internal server error"})
-//     }
-// }
-
 exports.getUserBookings = async (req, res) => {
     console.log('inside api call to get user bookings');
     try {

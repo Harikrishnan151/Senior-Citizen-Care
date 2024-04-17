@@ -229,7 +229,7 @@ exports.deleteWebinar=async(req,res)=>{
 exports.getAllLeaveReq=async(req,res)=>{
     console.log('inside api call to get all leave req')
     try {
-        const allReq=await serviceProviderLeaveReq.find()
+        const allReq=await serviceProviderLeaveReq.find({status:"pending"})
         res.status(200).json({allReq,message:'List of all leave req'})
         
     } catch (error) {
