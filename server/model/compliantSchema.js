@@ -19,9 +19,6 @@ const complaintSchema = new mongoose.Schema({
         required:true
        
     },
-
-
-
 })
 
 //3) Create a model to store user

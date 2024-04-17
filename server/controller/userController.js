@@ -4,14 +4,18 @@ const users=require('../model/userSchema')
 const readytoBook = require('../model/readyToBook')
 const bookings=require('../model/bookings')
 const review=require('../model/reviewSchema')
+const transactions=require('../model/transactions')
+const blockedServiceProvider=require('../model/blockedServiceProviders')
 
 
 //import bcryptjs for hide the password
 const bcryptjs = require('bcryptjs');
+const cron = require('node-cron');
 
 //import jwt-token to authenticate user
 const jwt=require('jsonwebtoken'); 
 const Bookings = require('../model/bookings');
+const transaction = require('../model/transactions')
 
 
 // Logic for user registeration
@@ -199,10 +203,12 @@ exports.PrimaryBooking=async(req,res)=>{
   console.log('inside service provider Primary booking function')
       const {typeOfCare,services,startingTime,endingTime,startDate,endDate,location,
         serviceProviderName,service,serviceProviderId,profile_img,serviceProviderEmail,
-        serviceProviderMobile,rate}=req.body
+        serviceProviderMobile,rate,workinghours,amountPaid}=req.body
          console.log(typeOfCare,services,startingTime,endingTime,startDate,endDate,location,
           serviceProviderName,service,serviceProviderId,profile_img,serviceProviderEmail,
-          serviceProviderMobile,rate);
+          serviceProviderMobile,rate,workinghours,amountPaid);
+          const formattedStartTime = formatToTime(startingTime);
+        const formattedEndTime = formatToTime(endingTime);
         try {
           const token = req.headers.authorization;
             console.log(token);
@@ -219,9 +225,9 @@ exports.PrimaryBooking=async(req,res)=>{
            const userId =decoded.userid
 
         const PrimaryReg=await Bookings({userEmail,userName,userId,typeOfCare,services,
-          startingTime,endingTime,startDate,endDate,location,serviceProviderName,
+          startingTime:formattedStartTime,endingTime:formattedEndTime,startDate,endDate,location,serviceProviderName,
           service,serviceProviderId,profile_img,serviceProviderEmail, serviceProviderMobile,
-          rate,serviceProviderStatus:'pending',adminStatus:'pending'})
+          rate,workinghours,serviceProviderStatus:'pending',adminStatus:'pending',amountPaid,amountStatus:'unpaid'})
 
          await PrimaryReg.save()
           res.status(200).json({PrimaryReg,message:'Waiting For Service Provider Confirmation'})
@@ -291,3 +297,164 @@ exports.getReviews=async(req,res)=>{
 
 }
 
+// conversion to time
+function formatToTime(number) {
+  const formattedTime =` ${number.toString().padStart(2, '0')}:00;`
+  return formattedTime;
+}
+
+
+
+
+//Get booking on user dashboard
+// payment and booking confirm
+exports.payment = async (req, res) => {
+  const { id } = req.body; // booking id
+  const date = new Date().toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  try {
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
+
+    jwt.verify(token, "superkey2024", async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Forbidden: Invalid token' });
+      }
+
+      const userEmail = decoded.userEmailId;
+      const userName = decoded.userName;
+      const userId = decoded.userid;
+
+      const user = await Bookings.findById(id);
+      if (!user) {
+        return res.status(404).json({ message: "No booking data available" });
+      }
+
+      const serviceproviderId = user.serviceProviderId;
+      console.log(serviceproviderId)
+      // const serviceProvider = await readytoBook.findOne({serviceProvidersId:serviceproviderId});
+      const serviceProvider = await readytoBook.findOne({ serviceProviderId: serviceproviderId });
+
+      console.log(serviceProvider)
+      if (!serviceProvider) {
+        return res.status(401).json({ message: "No service provider available, book with another one" });
+      }
+
+      const pay = await Bookings.findOneAndUpdate(
+        { _id: id,serviceProviderStatus: "Accepted",adminStatus: "approved", amountStatus: "unpaid" },
+        { $set: { amountStatus: "paid" } },
+        { new: true }
+      );
+
+      if (!pay) {
+        return res.status(404).json({ message: "Payment already processed" });
+      }
+
+      const blockeduser = await blockedServiceProvider.findOne({serviceProviderId:serviceproviderId});
+      if (blockeduser) {
+        return res.status(400).json({ message: "Sorry for the inconvenience, this service provider is unavailable now" });
+      }
+
+      const transactions = new transaction({
+        bookingId: id,
+        fromID: userId,
+        from_Name: userName,
+        To_ID: "65f3c3454247fe18fe09ed2e",
+        To_Name: "admin",
+        Date: date,
+        amount: pay.amountPaid,
+        Status: "credited"
+      });
+      await transactions.save();
+
+      const blockedlist = await blockedServiceProvider.insertMany(serviceProvider);
+      const deletelist = await readytoBook.deleteOne({ serviceProviderId: serviceproviderId });
+
+      // const textmessage = 'your booking placed';
+      // const subjectmail = 'Booking confirmed!!!!!';
+      // await sendConfirmationEmail(userEmail, subjectmail, textmessage);
+
+      res.status(200).json({ booking: pay, message: "Payment successful and booking confirmed" });
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+cron.schedule('* * * * *', async () => {
+          
+  try {
+      const currentDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+      const currentTime = new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit',second:'2-digit' });
+      const users = await Bookings.find({endingTime:currentTime,endDate:currentDate})
+      if(users.length>0){
+          console.log("testing started");
+          for (const user of users) {
+              const updatedBooking = await Bookings.findOneAndUpdate(
+                  { _id: user._id },
+                  { $set: { bookingPeriod:"completed" } },
+                  { new: true }
+                );
+              const readytobook = await blockedServiceProvider.findOne({serviceProviderId:user.serviceProviderId});
+              const serviceprovider = await readytoBook.insertMany(readytobook)
+              const newuser = await blockedServiceProvider.deleteOne({serviceProviderId:user.serviceProviderId})
+          }
+          console.log("success");
+          res.status(200).json({updatedBooking,message:"successful"})
+      }
+      else{
+
+          res.status(400).json({message:"unsuccessful"})
+      }
+
+      
+
+
+  } catch (error) {
+      res.status(500).json({ message: "internal server error" });
+
+  }
+})
+
+// get unpaid service booking  bill 
+exports.getUnpaidBill = async(req,res)=>{
+  try {
+      const token = req.headers.authorization;
+      console.log(token);
+          if (!token) {
+            return res.status(401).json({ message: "Unauthorized: No token provided" });
+          }
+      jwt.verify(token, "superkey2024", async (err, decoded) => {
+          if (err) {
+            return res.status(403).json({ message: 'Forbidden: Invalid token' });
+          }
+     
+          const userEmail= decoded.user_email
+        
+         const userName=decoded.user_name
+         const userId =decoded.user_id
+
+      const bill = await Bookings.find({adminStatus:"approved",amountStatus:"unpaid"})
+    
+      if(bill.length>0){
+          res.status(200).json({bill,message:"bill fetched successfully"})
+      }
+      else{
+          res.status(400).json({message:"No bill to Paid"})
+
+      }
+
+    
+         
+      } )    } catch (error) {
+      res.status(500).json({message:"internal server error"})
+
+  }
+}

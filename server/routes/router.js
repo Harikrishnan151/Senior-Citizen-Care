@@ -147,6 +147,16 @@ router.post('/user/sendchat',chats.sendMessage)
 //Api to get chat
 router.get('/getMessages/:userId1/:userId2',chats.getMessages);
 
+//Api to approve booking by admin
+// approved booking by admin
+router.post('/maternalcare/admin/primarybooking/accept',adminController.confirmBooking)
+
+// payment and confirm booking
+router.post('/maternalcare/primarybooking/user/payment/view',userController.payment)
+
+//get unpaid bill on userPage
+router.get('/maternalcare/primarybooking/billunpaid/view',userController.getUnpaidBill)
+
 //4) export routes
 module.exports=router
 

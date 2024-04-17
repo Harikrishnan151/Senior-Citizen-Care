@@ -51,7 +51,7 @@ const readyToBookSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    serviceProvidersId:{
+    serviceProviderId:{
         type:String,
         required:true
     }

@@ -32,11 +32,11 @@ const bookingSchema = new mongoose.Schema({
         required:true
     },
     startDate:{
-        type:Date,
+        type:String,
         required:true
     },
     endDate:{
-        type:Date,
+        type:String,
         required:true
     },
     location:{
@@ -79,6 +79,23 @@ const bookingSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+   workinghours:{
+        type:Number,
+        required:true
+    },
+    amountPaid:{
+        type:Number,
+        required:true
+    },
+    amountStatus:{
+        type:String,
+        required:true
+    },
+    bookingPeriod:{
+        type:String,
+      
+    },
+    
 
 })
 //3) Create a model to store user

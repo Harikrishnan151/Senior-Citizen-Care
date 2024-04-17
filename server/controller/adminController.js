@@ -357,7 +357,6 @@ exports.getRejectedBooking=async(req,res)=>{
 }
 
 //Logic to approve booking 
-
 exports.confirmBooking = async(req,res)=>{
 
     const {id}=req.body
@@ -372,7 +371,7 @@ exports.confirmBooking = async(req,res)=>{
         res.status(401).json({message:"can not approve unless service provider accepted"})
        }
         const updatedBooking = await Bookings.findOneAndUpdate(
-           { _id: id ,serviceProviderStatus: "accepted" ,
+           { _id: id ,serviceProviderStatus: "Accepted" ,
            adminStatus:"pending"},
            { $set: { adminStatus:"approved" } },
            { new: true }
@@ -392,5 +391,7 @@ exports.confirmBooking = async(req,res)=>{
  
    }
  }
+
+
 
 

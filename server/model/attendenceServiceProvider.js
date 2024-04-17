@@ -19,7 +19,7 @@ const serviceProviderAttendeceSchema=new mongoose.Schema({
         type:Number,
         required: true
     },
-    serviceProvidersId:{
+    serviceProviderId:{
         type:String,
         required: true
     },
