@@ -358,4 +358,39 @@ exports.getRejectedBooking=async(req,res)=>{
 
 //Logic to approve booking 
 
+exports.confirmBooking = async(req,res)=>{
+
+    const {id}=req.body
+   try {
+     const user= await Bookings.findById(id)
+     if (!user){
+ 
+       res.status(400).json({message:"No booking present"})
+     }
+     else{
+       if(user.serviceProviderStatus==="rejected" ||user.serviceProviderStatus==="pending" ){
+        res.status(401).json({message:"can not approve unless service provider accepted"})
+       }
+        const updatedBooking = await Bookings.findOneAndUpdate(
+           { _id: id ,serviceProviderStatus: "accepted" ,
+           adminStatus:"pending"},
+           { $set: { adminStatus:"approved" } },
+           { new: true }
+         );
+     console.log(updatedBooking);
+         if (!updatedBooking) {
+           return res.status(404).json({ message: "Booking  already processed" });
+         }
+     
+         res.status(200).json({ booking: updatedBooking , message:"booking accepted"});
+ 
+     }
+ 
+ 
+   } catch (error) {
+     res.status(500).json({message:"server error"})
+ 
+   }
+ }
+
 

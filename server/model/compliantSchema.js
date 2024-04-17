@@ -7,6 +7,9 @@ const complaintSchema = new mongoose.Schema({
         type: String,
        
     },
+    senderName:{
+        type:String
+     },
     receiverId:{
         type:String,
         
@@ -16,6 +19,7 @@ const complaintSchema = new mongoose.Schema({
         required:true
        
     },
+
 
 
 })

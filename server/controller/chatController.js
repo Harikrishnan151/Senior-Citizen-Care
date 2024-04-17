@@ -2,12 +2,11 @@ const chats=require('../model/compliantSchema')
 
 
 exports.sendMessage = async (req, res) => {
-
     console.log('inside chat send');
 
-    const { senderId, receiverId, message } = req.body;
+    const { senderId, senderName, receiverId, message } = req.body;
     try {
-        const newMessage = new chats({ senderId, receiverId, message });
+        const newMessage = new chats({ senderId, senderName, receiverId, message });
         await newMessage.save();
         res.status(200).json({ message: 'Message sent successfully', newMessage });
     } catch (error) {
