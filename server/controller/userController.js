@@ -436,12 +436,12 @@ exports.getUnpaidBill = async(req,res)=>{
             return res.status(403).json({ message: 'Forbidden: Invalid token' });
           }
      
-          const userEmail= decoded.user_email
+          const userEmail= decoded.userEmailId
         
          const userName=decoded.user_name
-         const userId =decoded.user_id
-
-      const bill = await Bookings.find({adminStatus:"approved",amountStatus:"unpaid"})
+         const userId =decoded.userid
+     console.log(userEmail);
+      const bill = await Bookings.find({userEmail:userEmail,adminStatus:"approved",amountStatus:"unpaid"})
     
       if(bill.length>0){
           res.status(200).json({bill,message:"bill fetched successfully"})
@@ -450,9 +450,7 @@ exports.getUnpaidBill = async(req,res)=>{
           res.status(400).json({message:"No bill to Paid"})
 
       }
-
-    
-         
+   
       } )    } catch (error) {
       res.status(500).json({message:"internal server error"})
 
