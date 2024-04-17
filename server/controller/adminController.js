@@ -356,4 +356,6 @@ exports.getRejectedBooking=async(req,res)=>{
     }
 }
 
+//Logic to approve booking 
+
 
