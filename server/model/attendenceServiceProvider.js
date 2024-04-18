@@ -27,7 +27,6 @@ const serviceProviderAttendeceSchema=new mongoose.Schema({
         type:String,
         required: true
     },
-
     present:{
         type:Boolean,
         required: true
@@ -37,5 +36,7 @@ const serviceProviderAttendeceSchema=new mongoose.Schema({
 //3) Create a model to store user
 const serviceProviderAttendence=mongoose.model('serviceProviderAttendence',serviceProviderAttendeceSchema)
 
+
 //4) Export model
 module.exports=serviceProviderAttendence
+

@@ -158,20 +158,20 @@ exports.serviceProviderAttendance = async (req, res) => {
             const userEmail=req.userEmail 
             console.log(userId);
             // Check if the service provider exists
-            const user = await approvedServiceProvider.findOne({ _id: userId });
+            const user = await approvedServiceProvider.findOne({ _id: userId});
             if (!user) {
                 return res.status(401).json({ message: 'User not found' });
             }
 
             // Check if attendance for the service provider on the given date is already marked
-            const check = await serviceProviderAttendence.findOne({ serviceProvidersId: userId,serviceProviderEmail:userEmail,date, time_in, time_out, working_hours, present: true });
+            const check = await serviceProviderAttendence.findOne({serviceProviderId:userId,serviceProviderEmail:userEmail,date,time_in,time_out, working_hours, present: true });
             if (check) {
                 return res.status(400).json({ message: 'Attendance already marked' });
             }
 
             // Create new attendance record
             const newAttendance = new serviceProviderAttendence({
-                date, time_in, time_out, working_hours, serviceProvidersId: userId,serviceProviderEmail:userEmail, present
+                date, time_in,time_out, working_hours, serviceProviderId:userId,serviceProviderEmail:userEmail, present
             });
             await newAttendance.save();
 
