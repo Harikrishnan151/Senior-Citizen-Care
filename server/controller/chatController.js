@@ -1,5 +1,6 @@
 const chats=require('../model/compliantSchema')
 const jwt = require('jsonwebtoken');
+
 //send message
 exports.sendMessage = async (req, res) => {
     console.log('inside chat send');
