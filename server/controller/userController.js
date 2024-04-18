@@ -441,7 +441,7 @@ exports.getUnpaidBill = async(req,res)=>{
          const userName=decoded.user_name
          const userId =decoded.userid
      console.log(userEmail);
-      const bill = await Bookings.find({userEmail:userEmail,adminStatus:"approved",amountStatus:"unpaid"})
+      const bill = await Bookings.find({userId:userId,adminStatus:"approved",amountStatus:"unpaid"})
     
       if(bill.length>0){
           res.status(200).json({bill,message:"bill fetched successfully"})
@@ -451,13 +451,50 @@ exports.getUnpaidBill = async(req,res)=>{
 
       }
    
-      } )    } catch (error) {
+      } )  
+      } catch (error) {
       res.status(500).json({message:"internal server error"})
 
   }
 }
 
-//Logic to get all service providrs frommreadytobook
+//Logic to get paid bills
+exports.userPaidBills=async(req,res)=>{
+  console.log('inside api call to get user paid bills')
+  try {
+    const token = req.headers.authorization;
+    console.log(token);
+        if (!token) {
+          return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
+    jwt.verify(token, "superkey2024", async (err, decoded) => {
+        if (err) {
+          return res.status(403).json({ message: 'Forbidden: Invalid token' });
+        }
+   
+        const userEmail= decoded.userEmailId
+      
+       const userName=decoded.user_name
+       const userId =decoded.userid
+   console.log(userEmail);
+    const bills = await Bookings.find({userId:userId,adminStatus:"approved",amountStatus:"paid"})
+  
+    if(bills.length>0){
+        res.status(200).json({bills,message:"user paid bills"})
+    }
+    else{
+        res.status(400).json({message:"No Booking payments"})
+
+    }
+ 
+    } )  
+    
+  } catch (error) {
+    res.status(500).json({message:"internal server error"}) 
+  }
+}
+
+//Logic to get all service providrs fromreadytobook
 exports.getAllServiceProviders=async(req,res)=>{
   console.log('inside api call to get all service providers from ready to book')
   try {

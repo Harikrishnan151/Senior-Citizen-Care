@@ -166,6 +166,9 @@ router.get('/history/transaction-history',userController.getPaymentHistory)
 //Api to get all transactions details
 router.get('/transactions/alltransactions',adminController.allTransactions)
 
+//Api call to get user paid bills
+router.get('/user/paid-bills',userController.userPaidBills)
+
 //4) export routes
 module.exports=router
 
