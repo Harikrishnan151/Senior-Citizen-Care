@@ -139,7 +139,7 @@ router.get('/bookings/rejected-bookings',adminController.getRejectedBooking)
 router.post('/review/add-review',userController.addReview)
 
 //Api to view reviews
-router.get('/reviews/view-reviews',userController.getReviews)
+router.get('/reviews/view-reviews/:id',userController.getReviews)
 
 //Api to post chat
 router.post('/user/sendchat',chats.sendMessage)

@@ -282,9 +282,9 @@ exports.addReview=async(req,res)=>{
 //Logic to get service provider reviews
 exports.getReviews=async(req,res)=>{
   console.log('inside api call to get reviews')
-  const {id}=req.body
+  const {id}=req.params
   try {
-    const viewReviews=await review.findOne({serviceProviderId:id})
+    const viewReviews=await review.find({serviceProviderId:id})
     if(!viewReviews){
       res.status(400).json({message:'No Reviews'})
     }else{
