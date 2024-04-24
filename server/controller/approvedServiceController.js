@@ -348,6 +348,63 @@ exports.rejectBooking=async(req,res)=>{
   
 }
 
+//Logic to update user profile image
+exports.updateProfilePic=async(req,res)=>{
+    console.log('inside api call to update user profile pic')
+    const img=req.file.filename
+    const newImg=`http://localhost:5000/uploadImage/${img}`
+    try {
+        const token = req.headers.authorization;
+        console.log(token);
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
+        jwt.verify(token, 'superkey2024', async (err, decoded) => {
+            if (err) {
+                return res.status(403).json({ message: 'Forbidden: Invalid token' });
+            }
+            const userId = decoded.serviceProviderid;
+            console.log(userId);
+            const existingUser = await approvedServiceProvider.find({ _id: userId });
+            if(!existingUser){
+                res.status(400).json({message:'user not found'})
+            }else{
+                const filter={ _id: userId };
+                const update={
+                    $set:{
+                        profile_img:newImg
+                    }
+                }
+                console.log(newImg);
+                const result=await approvedServiceProvider.updateOne(filter,update)
+                console.log(result);
+    
+                if(result.modifiedCount==1){
+                    const filters={serviceProviderId: userId };
+                    const updates={
+                        $set:{
+                            profile_img:newImg
+                        }
+                    }
+                    const results=await readytoBook.updateOne(filters,updates)
+                 const preUser=await approvedServiceProvider.findOne({_id: userId })
+                 const preUsers=await readytoBook.findOne({serviceProviderId:userId })
+                    res.status(200).json({preUser,preUsers,message:'Photo succesfully uploaded'})
+                }else{
+                    res.status(400).json({message:'Photo upload faild'})
+                }
+            }
+
+           
+  
+        });
+        
+    } catch (error) {
+        res.status(500).json({message:"Internal server error"})    
+    }
+}
+
+
 
 
 

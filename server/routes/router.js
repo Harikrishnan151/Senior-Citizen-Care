@@ -7,6 +7,7 @@ const adminController=require('../controller/adminController')
 const serviveproviderController=require('../controller/serviceproviderController')
 const approvedServiceProvider=require('../controller/approvedServiceController')
 const chats=require('../controller/chatController')
+const mainCategoryController=require('../controller/categoryController')
 
 //import certificate multer file
 const upload=require('../multer/storageConfig')
@@ -168,6 +169,27 @@ router.get('/transactions/alltransactions',adminController.allTransactions)
 
 //Api call to get user paid bills
 router.get('/user/paid-bills',userController.userPaidBills)
+
+//Api to update pic
+router.post('/update/profile-pic',uploadImg.single('profile_img'),approvedServiceProvider.updateProfilePic)
+
+//Api to add main category
+router.post('/category/main-category',mainCategoryController.addMainCategory)
+
+//Api to get main categories
+router.get('/get/main-categories',mainCategoryController.getMainCtegory)
+
+//Api to delete category
+router.delete('/delete/main-category',mainCategoryController.deleteCategory)
+
+//Api to add subcategory
+router.post('/add-subcategory/category',mainCategoryController.addSubcategory)
+
+//Api to add emergency support
+router.post('/emergency/add-emergency',mainCategoryController.addEmergency)
+
+//Api to get emergency
+router.get('/emergency/allEmergency',mainCategoryController.getEmergency)
 
 //4) export routes
 module.exports=router
