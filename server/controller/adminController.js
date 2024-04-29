@@ -13,6 +13,8 @@ const transactions=require('../model/transactions')
 // nodemailer import
 const nodemailer = require('nodemailer');
 
+const jwt=require('jsonwebtoken');
+
 
 // mail send usimg  smtp(simple mail transfer protocol)
 async function sendConfirmationEmail(serviceProviderEmail,subject,textMessage) {
@@ -47,7 +49,11 @@ exports.adminLogin=async(req,res)=>{
     try {
         const existingAdmin=await admins.findOne({username,password})
         if(existingAdmin !==null && existingAdmin !== undefined){
-            res.status(200).json({existingAdmin,message:'Login in sucessfull'})
+            const token=jwt.sign({
+                adminid:existingAdmin._id,
+              },"superkey2024")
+              res.status(200).json({existingAdmin,token})
+            // res.status(200).json({existingAdmin,message:'Login in sucessfull'})
         }else{
             res.status(404).json({message:'incorrect email or password'})
         }
