@@ -43,3 +43,18 @@ exports.getMessages = async (req, res) => {
         res.status(500).json({ error: 'Failed to get messages' });
     }
 };
+
+//get all chats in admin dashboard
+exports.getAllMessage = async (req, res) => {
+    console.log('inside api call to get all message')
+    try {
+        const uniqueSenders = await chats.aggregate([
+            { $match: { senderName: { $ne: "Admin" } } }, // Filter out messages where senderName is not "Admin"
+            { $group: { _id: "$senderId", senderName: { $first: "$senderName" } } } // Group by senderId and retrieve the first senderName
+        ]);
+
+        res.status(200).json({ uniqueSenders, message: 'List of all unique senders excluding admin messages' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get senders' });
+    }
+}

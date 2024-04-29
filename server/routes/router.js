@@ -191,6 +191,9 @@ router.post('/emergency/add-emergency',mainCategoryController.addEmergency)
 //Api to get emergency
 router.get('/emergency/allEmergency',mainCategoryController.getEmergency)
 
+//Apin to get all chats
+router.get('/complaints/chats',chats.getAllMessage)
+
 //4) export routes
 module.exports=router
 
