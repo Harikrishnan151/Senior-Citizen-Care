@@ -364,7 +364,7 @@ exports.getRejectedBooking=async(req,res)=>{
     }
 }
 
-//Logic to approve booking 
+//Logic to approve bookings
 exports.confirmBooking = async(req,res)=>{
 
     const {id}=req.body
