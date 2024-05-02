@@ -262,9 +262,9 @@ exports.rejectLeaveReq=async(req,res)=>{
           );
           const mail=rejectReq.email
           console.log(mail);
-        //   textMessage='Your Leave Application Rejected...! Please Contact Your Admin Personally For Any Queries...'
-        //   subject='Rejected Leave Request....!'
-        //    sendConfirmationEmail(mail,subject,textMessage) 
+          textMessage='Your Leave Application Rejected...! Please Contact Your Admin Personally For Any Queries...'
+          subject='Rejected Leave Request....!'
+           sendConfirmationEmail(mail,subject,textMessage) 
 
           res.status(200).json({rejectReq,message:'Leave Request rejected'});
         
@@ -314,9 +314,9 @@ exports.acceptLeaveReq=async(req,res)=>{
               );
               const mail=acceptReq.email
               console.log(mail);
-            //   textMessage='Your Leave Application is Accepted'
-            //   subject='Leave Request Accepted'
-            //    sendConfirmationEmail(mail,subject,textMessage) 
+              textMessage='Your Leave Application is Accepted'
+              subject='Leave Request Accepted'
+               sendConfirmationEmail(mail,subject,textMessage) 
     
     
               res.status(200).json({acceptReq,message:'Leave Request Accepted'});

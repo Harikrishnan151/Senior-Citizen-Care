@@ -376,9 +376,9 @@ exports.payment = async (req, res) => {
       const blockedlist = await blockedServiceProvider.insertMany(serviceProvider);
       const deletelist = await readytoBook.deleteOne({ serviceProviderId: serviceproviderId });
 
-      // const textmessage = 'your booking placed';
-      // const subjectmail = 'Booking confirmed!!!!!';
-      // await sendConfirmationEmail(userEmail, subjectmail, textmessage);
+      const textmessage = 'your booking placed';
+      const subjectmail = 'Booking confirmed!!!!!';
+      await sendConfirmationEmail(userEmail, subjectmail, textmessage);
 
       res.status(200).json({ booking: pay, message: "Payment successful and booking confirmed" });
     });
